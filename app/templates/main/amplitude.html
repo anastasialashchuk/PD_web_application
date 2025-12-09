@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Tracking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #video-container {
+            position: relative;
+            width: 640px;
+            height: 480px;
+            border: 3px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #video {
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+        }
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hand Tracking Application</h1>
+    <div id="video-container">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas" width="640" height="480"></canvas>
+    </div>
+    <div class="controls">
+        <button id="start">Start Camera</button>
+        <button id="stop" disabled>Stop Camera</button>
+    </div>
+
+    <script>
+        // Элементы DOM
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const startBtn = document.getElementById('start');
+        const stopBtn = document.getElementById('stop');
+
+        // Проверка поддержки API
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert('Ваш браузер не поддерживает доступ к камере или вы не используете HTTPS');
+            startBtn.disabled = true;
+        }
+
+        // Запуск камеры
+        startBtn.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: 640,
+                        height: 480,
+                        facingMode: 'user'
+                    },
+                    audio: false
+                });
+
+                video.srcObject = stream;
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+
+                // Обработка кадров
+                processFrame();
+            } catch (err) {
+                console.error('Camera error:', err);
+                alert(`Ошибка доступа к камере: ${err.message}`);
+            }
+        });
+
+        // Остановка камеры
+        stopBtn.addEventListener('click', () => {
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        });
+
+        // Обработка кадров и рисование
+        function processFrame() {
+            if (!video.srcObject) return;
+
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Здесь будет логика обработки рук
+            // Можно добавить requestAnimationFrame для непрерывной обработки
+
+            requestAnimationFrame(processFrame);
+        }
+    </script>
+</body>
+</html>

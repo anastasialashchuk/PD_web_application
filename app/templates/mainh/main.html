@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{{url_for('static',filename='css/main.css') }} ">
+    <title>{% block title %}{% endblock %}</title>
+
+</head>
+<body>
+    <center>
+        <h1 style="color:white;"> Инструкции к упражнениям </h1>
+
+        <video width="720" height="405" controls>
+            <source src="app/templates/PD.mp4" type="video/mp4">
+        </video>
+    </center>
+</body>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <h2 style="color:white;"class="card-header h2 text-center">
+                        Запись упражнения
+                    </h2>
+                    <div class="card-body">
+                        <div class="booth">
+                            <video id="video" width="100%" height="100%" autoplay></video>
+                            <canvas id="outputCanvas"></canvas>
+                            <script src="app.js"></script>
+                        </div>
+                        <div class="text-right">
+                            <button class="btn btn-danger" onClick="stopCam()">Stop Cam</button>
+                            <button class="btn btn-success" onClick="startCam()">Start Cam</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const stopCam = () => {
+            const video = document.getElementById('video');
+            const stream = video.srcObject;
+            const tracks = stream.getTracks();
+            tracks.forEach(track => track.stop());
+            video.srcObject = null;
+        };
+        const startCam = () => {
+            const video = document.getElementById('video');
+            if (navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        video.srcObject = stream;
+                    })
+                    .catch(error => {
+                        console.error("Something went wrong!", error);
+                    });
+            } else {
+                console.log("getUserMedia not supported on your browser!");
+            }
+        };
+        $(document).ready(() => {
+            startCam();
+        });
+    </script>
+</body>
+</html>
